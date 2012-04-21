@@ -3,9 +3,13 @@
 
 // Inspired by Chromium's base/logging.h.
 
-#include <functional>
 #include <sstream>
 #include <string>
+
+namespace std {
+template<typename R, typename... Args>
+class function<R(Args...)>;
+}
 
 #define LOG(severity) \
     ::logging::LogMessage(\
