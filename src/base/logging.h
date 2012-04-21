@@ -6,11 +6,6 @@
 #include <sstream>
 #include <string>
 
-namespace std {
-template<typename R, typename... Args>
-class function<R(Args...)>;
-}
-
 #define LOG(severity) \
     ::logging::LogMessage(\
         __FILE__, __LINE__, ::logging::LOG_ ## severity).stream()
@@ -99,10 +94,10 @@ class LogMessageVoidify {
 };
 
 // The callback type for SetLogCallback().
-typedef std::function<void(const LogMessage& message)> LogCallback;
+typedef void (*LogCallback)(const LogMessage& message);
 
 // Installs a custom LogMessage handler.
-void SetLogCallback(const LogCallback& callback);
+void SetLogCallback(LogCallback callback);
 
 }  // namespace logging
 

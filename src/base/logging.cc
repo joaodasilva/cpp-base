@@ -5,14 +5,13 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
-#include <functional>
 #include <iostream>
 
 namespace logging {
 
 namespace {
 
-LogCallback log_callback;
+LogCallback log_callback = NULL;
 
 const char* kSeverity[] = {
   "VERBOSE",
@@ -52,7 +51,7 @@ LogMessage::LogMessage(const char* file, size_t line, LogSeverity severity)
 
 LogMessage::~LogMessage() {
   if (!log_callback)
-    log_callback = std::bind(DefaultLogCallback, std::placeholders::_1);
+    log_callback = DefaultLogCallback;
   log_callback(*this);
 }
 
@@ -65,7 +64,7 @@ ErrnoLogMessage::~ErrnoLogMessage() {
   stream() << " (errno " << err << ": " << std::strerror(err) << ")";
 }
 
-void SetLogCallback(const LogCallback& callback) {
+void SetLogCallback(LogCallback callback) {
   log_callback = callback;
 }
 
