@@ -1,10 +1,13 @@
+REQUIREMENTS
+
+C++11 compiler. Tested with clang++ 3.0 and gcc 4.6, on OSX and linux.
+Python.
+
+BUILDING AND TESTING
+
 0. git submodule init
 1. git submodule update
 2. alias waf=`pwd`/third_party/waf/waf-light
 3. waf configure
 4. waf
-
-REQUIREMENTS
-
-C++11 compiler. Tested with clang++ 3.0 and gcc 4.6, on OSX and linux.
-Python.
+5. ./build/base_tests

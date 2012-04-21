@@ -1,4 +1,5 @@
 *.swp
+*.swo
 .lock-waf*
 build
 tags
