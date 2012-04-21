@@ -35,7 +35,7 @@
 
 #define DLOG(severity)    LOG(severity)
 #define DLOGE(severity)   LOGE(severity)
-#define DCHECK(condition) LOG_IF(FATAL, !(condition))
+#define DCHECK(condition) CHECK(condition)
 
 #endif  // NDEBUG
 

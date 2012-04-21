@@ -1,5 +1,7 @@
 #include "base/logging.h"
 
+#include "base/stack_trace.h"
+
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -33,9 +35,11 @@ void DefaultLogCallback(const LogMessage& message) {
             << CleanPath(message.file()) << ":" << message.line() << "] "
             << message.message() << std::endl;
 
-  // TODO: have something that prints a stack trace instead.
-  if (message.severity() == LOG_FATAL)
+  if (message.severity() == LOG_FATAL) {
+    if (StackTrace::SupportedByPlatform())
+      std::cerr << "Stack trace:\n" << StackTrace().ToString() << std::endl;
     std::abort();
+  }
 }
 
 }  // namespace
