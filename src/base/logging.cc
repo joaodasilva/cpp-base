@@ -20,11 +20,18 @@ const char* kSeverity[] = {
   "FATAL",
 };
 
+const char* CleanPath(const char* path) {
+  // Skip leading '..' in the path.
+  while (std::strncmp(path, "../", 3) == 0)
+    path += 3;
+  return path;
+}
+
 // TODO: a more spiffy LogCallback that uses command line flags for filtering.
-// TODO: cleanup file name (remove '..', etc)
 void DefaultLogCallback(const LogMessage& message) {
-  std::cerr << "[" << kSeverity[message.severity()] << " " << message.file()
-            << ":" << message.line() << "] " << message.message() << std::endl;
+  std::cerr << "[" << kSeverity[message.severity()] << " "
+            << CleanPath(message.file()) << ":" << message.line() << "] "
+            << message.message() << std::endl;
 
   // TODO: have something that prints a stack trace instead.
   if (message.severity() == LOG_FATAL)

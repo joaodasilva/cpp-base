@@ -1,16 +1,20 @@
 #ifndef BASE_LOG_H
 #define BASE_LOG_H
 
+// Inspired by Chromium's base/logging.h.
+
 #include <functional>
 #include <sstream>
 #include <string>
 
 #define LOG(severity) \
-    ::logging::LogMessage(__FILE__, __LINE__, ::logging::LOG_ ## severity).stream()
+    ::logging::LogMessage(\
+        __FILE__, __LINE__, ::logging::LOG_ ## severity).stream()
 
 // Same as LOG(severity), but appends the current errno value and message.
 #define LOGE(severity) \
-    ::logging::ErrnoLogMessage(__FILE__, __LINE__, ::logging::LOG_ ## severity).stream()
+    ::logging::ErrnoLogMessage(\
+        __FILE__, __LINE__, ::logging::LOG_ ## severity).stream()
 
 #define LOG_IF(severity, condition) \
     !(condition) ? (void) 0 : ::logging::LogMessageVoidify() & LOG(severity)
