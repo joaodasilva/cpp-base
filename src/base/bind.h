@@ -42,6 +42,12 @@ class Callback {
       shared_storage_->Ref();
   }
 
+  Callback(Callback& callback)
+      : shared_storage_(callback.shared_storage_) {
+    if (shared_storage_)
+      shared_storage_->Ref();
+  }
+
   Callback(Callback&& callback)
       : shared_storage_(callback.shared_storage_) {
     callback.shared_storage_ = NULL;

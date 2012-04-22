@@ -49,7 +49,7 @@ Time return_current_time(const Time* t) {
 }  // namespace
 
 class EventLoopTest : public testing::Test {
- protected:
+ public:
   EventLoopTest()
       : loop_(EventLoop::Create()) {}
 
