@@ -82,7 +82,8 @@ def build(ctx):
   ctx.program(target = 'base_tests',
               use = 'tests_common',
               cxxflags = ctx.env.CXXFLAGS_LOCAL + test_flags,
-              source = 'src/base/logging_unittest.cc '
+              source = 'src/base/bind_unittest.cc '
+                       'src/base/logging_unittest.cc '
                        'src/base/stack_trace_unittest.cc '
                        'src/base/thread_checker_unittest.cc '
                        'src/base/weak_unittest.cc ')

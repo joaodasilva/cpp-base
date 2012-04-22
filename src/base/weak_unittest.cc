@@ -31,6 +31,8 @@ class WeakIncrementer : public Incrementer,
   using Weakling::InvalidateAll;
 };
 
+}  // namespace
+
 TEST(Weak, WeakPtr) {
   int counter = 0;
   WeakIncrementer incrementer(&counter);
@@ -109,46 +111,6 @@ TEST(Weak, WeakPtr) {
   }
   EXPECT_FALSE(w0.get());
 }
-
-// TODO: port this.
-#if 0
-TEST(Weak, WeakMethod) {
-  int counter = 0;
-  unique_ptr<WeakIncrementer> incrementer(new WeakIncrementer(&counter));
-  std::function<void()> inc =
-      std::bind(&Incrementer::increment, incrementer.get());
-  EXPECT_EQ(0, counter);
-  inc();
-  EXPECT_EQ(1, counter);
-
-  std::function<void()> weakinc = incrementer->WeakMethod(
-      &WeakIncrementer::increment);
-  EXPECT_EQ(1, counter);
-  weakinc();
-  EXPECT_EQ(2, counter);
-  incrementer->InvalidateAll();
-  weakinc();
-  EXPECT_EQ(2, counter);
-
-  std::function<void(int)> weakadd = incrementer->WeakMethod(
-      &WeakIncrementer::add);
-  EXPECT_EQ(2, counter);
-  weakadd(10);
-  EXPECT_EQ(12, counter);
-  incrementer->InvalidateAll();
-  weakadd(10);
-  EXPECT_EQ(12, counter);
-
-  weakadd = incrementer->WeakMethod(&WeakIncrementer::add);
-  std::function<void()> add100 = std::bind(weakadd, 100);
-  EXPECT_EQ(12, counter);
-  add100();
-  EXPECT_EQ(112, counter);
-  incrementer->InvalidateAll();
-  add100();
-  EXPECT_EQ(112, counter);
-}
-#endif
 
 // TODO: port this.
 #if 0
@@ -257,5 +219,3 @@ TEST(Weak, ScopedWeakPtrFactory) {
   }
   EXPECT_FALSE(w0.get());
 }
-
-}  // namespace

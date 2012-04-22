@@ -2,8 +2,6 @@
 
 #include "base/unittest.h"
 
-namespace {
-
 TEST(ThreadChecker, SameID) {
   ThreadChecker checker;
   EXPECT_TRUE(checker.Check());
@@ -26,5 +24,3 @@ TEST(ThreadChecker, DifferentID) {
   EXPECT_TRUE(checked);
   EXPECT_FALSE(result);
 }
-
-}  // namespace
