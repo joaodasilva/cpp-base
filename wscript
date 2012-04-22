@@ -71,7 +71,8 @@ def build(ctx):
             source = 'src/base/file.cc '
                      'src/base/logging.cc '
                      'src/base/socket.cc '
-                     'src/base/stack_trace.cc ')
+                     'src/base/stack_trace.cc '
+                     'src/base/thread_checker.cc ')
 
   ctx.stlib(target = 'tests_common',
             use = 'common base googletest googlemock',
@@ -82,7 +83,8 @@ def build(ctx):
               use = 'tests_common',
               cxxflags = ctx.env.CXXFLAGS_LOCAL + test_flags,
               source = 'src/base/logging_unittest.cc '
-                       'src/base/stack_trace_unittest.cc ')
+                       'src/base/stack_trace_unittest.cc '
+                       'src/base/thread_checker_unittest.cc ')
 
 def tags(ctx):
   subprocess.call(['ctags', '--extra=+f', '-R', 'src', 'third_party'])
