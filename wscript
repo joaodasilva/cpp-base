@@ -84,7 +84,8 @@ def build(ctx):
               cxxflags = ctx.env.CXXFLAGS_LOCAL + test_flags,
               source = 'src/base/logging_unittest.cc '
                        'src/base/stack_trace_unittest.cc '
-                       'src/base/thread_checker_unittest.cc ')
+                       'src/base/thread_checker_unittest.cc '
+                       'src/base/weak_unittest.cc ')
 
 def tags(ctx):
   subprocess.call(['ctags', '--extra=+f', '-R', 'src', 'third_party'])
