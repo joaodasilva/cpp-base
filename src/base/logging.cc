@@ -31,6 +31,9 @@ const char* CleanPath(const char* path) {
 
 // TODO: a more spiffy LogCallback that uses command line flags for filtering.
 void DefaultLogCallback(const LogMessage& message) {
+  if (message.severity() < LOG_INFO)
+    return;;
+
   std::cerr << "[" << kSeverity[message.severity()] << " "
             << CleanPath(message.file()) << ":" << message.line() << "] "
             << message.message() << std::endl;

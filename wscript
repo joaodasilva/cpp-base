@@ -68,7 +68,8 @@ def build(ctx):
   ctx.stlib(target = 'base',
             use = 'common',
             cxxflags = ctx.env.CXXFLAGS_LOCAL,
-            source = 'src/base/file.cc '
+            source = 'src/base/event_loop.cc '
+                     'src/base/file.cc '
                      'src/base/logging.cc '
                      'src/base/socket.cc '
                      'src/base/stack_trace.cc '
@@ -84,6 +85,7 @@ def build(ctx):
               use = 'tests_common',
               cxxflags = ctx.env.CXXFLAGS_LOCAL + test_flags,
               source = 'src/base/bind_unittest.cc '
+                       'src/base/event_loop_unittest.cc '
                        'src/base/logging_unittest.cc '
                        'src/base/stack_trace_unittest.cc '
                        'src/base/thread_checker_unittest.cc '
