@@ -72,6 +72,7 @@ def build(ctx):
                      'src/base/logging.cc '
                      'src/base/socket.cc '
                      'src/base/stack_trace.cc '
+                     'src/base/time.cc '
                      'src/base/thread_checker.cc ')
 
   ctx.stlib(target = 'tests_common',
