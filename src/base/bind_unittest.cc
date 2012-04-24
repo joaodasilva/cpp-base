@@ -5,6 +5,8 @@
 #include "base/unittest.h"
 #include "base/weak.h"
 
+using namespace std::placeholders;
+
 namespace {
 
 class Foo {
@@ -16,10 +18,16 @@ class Foo {
     return "(" + aa + ", " + bb + ", " + cc + ")";
   }
 
-  // TODO: const method can't have the same name.
-  // TODO: test other overloadings.
   std::string ConstMerge(std::string bb, std::string cc) const {
     return "const (" + aa + ", " + bb + ", " + cc + ")";
+  }
+
+  std::string Overloaded(std::string s) {
+    return "Overloaded(" + s + aa + ")";
+  }
+
+  std::string Overloaded(std::string s) const {
+    return "const Overloaded(" + s + aa + ")";
   }
 
   void Copy(std::string* to) {
@@ -28,6 +36,17 @@ class Foo {
 
  private:
   std::string aa;
+};
+
+class Zombie {
+ public:
+  explicit Zombie(bool* alive_flag) : alive_flag_(alive_flag) {}
+  ~Zombie() { *alive_flag_ = false; }
+
+  bool alive() { return *alive_flag_; }
+
+ private:
+  bool* alive_flag_;
 };
 
 std::string Merge(std::string aa, std::string bb, std::string cc) {
@@ -144,16 +163,47 @@ TEST(BindTest, WeakMethod) {
   EXPECT_EQ(std::string(), copy);
 }
 
-// TODO: test Bind() with bind() and function<>
-// TODO: test Bind() with unique_ptrs
+TEST(BindTest, UniquePtr) {
+  bool alive = true;
+  unique_ptr<Zombie> zombie(new Zombie(&alive));
+  EXPECT_TRUE(alive);
+  zombie.reset();
+  EXPECT_FALSE(alive);
 
-// TODO: test Apply() with many types of parameters:
-//  - (auto, const auto, refs, auto refs, rvalues, const rvalues?) x
-//    (int, string, struct, char[], tuples) x
-//    (function, method, const method, static method, virtual method, functor) x
-//    (return void, return string, return tuple)
+  alive = true;
+  zombie.reset(new Zombie(&alive));
+  EXPECT_TRUE(alive);
 
-// TODO: test same for Bind()
+  {
+    // The callback owns the Zombie.
+    auto cb = Bind(&Zombie::alive, std::move(zombie));
+    EXPECT_TRUE(alive);
+    EXPECT_TRUE(cb());
+    EXPECT_TRUE(alive);
+  }
+  EXPECT_FALSE(alive);
+}
 
-// TODO: make this work:
-// std::function<ret_type(arg_type, arg2_type)> f = Bind(...)
+TEST(BindTest, BindBind) {
+  auto func = std::bind(Merge, _2, "+", _1);
+  auto cb = Bind(std::move(func), "123");
+  EXPECT_EQ("(456, +, 123)", cb("456"));
+}
+
+TEST(BindTest, BindBind2) {
+  std::function<std::string(std::string, std::string)> func =
+      std::bind(Merge, _2, "+", _1);
+  auto cb = Bind(func, "123");
+  EXPECT_EQ("(456, +, 123)", cb("456"));
+}
+
+TEST(BindTest, BindFunction) {
+  std::function<std::string(std::string, std::string, std::string)> f = Merge;
+  auto cb = Bind(f, kAA);
+  EXPECT_EQ(kMerged, cb(kBB, kCC));
+}
+
+TEST(BindTest, StdFunction) {
+  std::function<std::string(std::string)> f = Bind(Merge, kAA, kBB);
+  EXPECT_EQ(kMerged, f(kCC));
+}
