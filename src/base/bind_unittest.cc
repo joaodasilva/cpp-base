@@ -110,8 +110,6 @@ TEST(BindTest, Method) {
 }
 
 TEST(BindTest, ConstMethod) {
-  // TODO: doesn't work!
-#if 0
   Foo foo(kAA);
   const Foo* cfoo = &foo;
   auto cb1 = Bind(&Foo::ConstMerge, cfoo, kBB, kCC);
@@ -122,7 +120,6 @@ TEST(BindTest, ConstMethod) {
   EXPECT_EQ(kConstMerged, cb3(kBB, kCC));
   auto cb4 = Bind(&Foo::ConstMerge);
   EXPECT_EQ(kConstMerged, cb4(cfoo, kBB, kCC));
-#endif
 }
 
 TEST(BindTest, WeakMethod) {
@@ -131,25 +128,32 @@ TEST(BindTest, WeakMethod) {
   WeakPtr<Foo> weak = factory.GetWeakPtr();
 
   std::string copy;
-  // TODO: The 1st line works, but the 2nd line doesn't!
-  //auto cb1 = Bind(&Foo::Copy, factory.GetWeakPtr(), &copy);
-  //auto cb1 = Bind(&Foo::Copy, weak, &copy);
+  auto cb1r = Bind(&Foo::Copy, factory.GetWeakPtr(), &copy);
+  auto cb1l = Bind(&Foo::Copy, weak, &copy);
 
-  // This one works...
-  auto std_cb = std::bind(&Foo::Copy, weak, &copy);
-
-#if 0
-  cb1();
+  cb1r();
+  EXPECT_EQ(kAA, copy);
+  copy.clear();
+  cb1l();
   EXPECT_EQ(kAA, copy);
 
-  copy.clear();
-  EXPECT_EQ(std::string(), copy);
   factory.InvalidateAll();
   auto cb2 = Bind(&Foo::Copy, weak, &copy);
+  copy.clear();
   cb2();
   EXPECT_EQ(std::string(), copy);
-#endif
 }
 
 // TODO: test Bind() with bind() and function<>
 // TODO: test Bind() with unique_ptrs
+
+// TODO: test Apply() with many types of parameters:
+//  - (auto, const auto, refs, auto refs, rvalues, const rvalues?) x
+//    (int, string, struct, char[], tuples) x
+//    (function, method, const method, static method, virtual method, functor) x
+//    (return void, return string, return tuple)
+
+// TODO: test same for Bind()
+
+// TODO: make this work:
+// std::function<ret_type(arg_type, arg2_type)> f = Bind(...)

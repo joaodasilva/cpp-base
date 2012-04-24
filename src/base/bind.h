@@ -30,14 +30,16 @@ Apply(
 template<typename Function, typename... BoundArgs>
 class Callback {
  public:
-  Callback(const Function& function, BoundArgs&&... bound_args)
+  template<typename InFunction, typename... InBoundArgs>
+  explicit Callback(InFunction&& function, InBoundArgs&&... bound_args)
       : shared_storage_(new SharedStorage(
-            function,
-            std::forward<BoundArgs>(bound_args)...)) {}
+            std::forward<InFunction>(function),
+            std::forward<InBoundArgs>(bound_args)...)) {}
 
   Callback(const Callback& callback)
       : shared_storage_(callback.shared_storage_) {
-    shared_storage_->Ref();
+    if (shared_storage_)
+      shared_storage_->Ref();
   }
 
   Callback(Callback&& callback)
@@ -63,7 +65,7 @@ class Callback {
   template<typename... Args>
   typename CallableTraits<Function>::return_type
   operator()(Args&&... args) const {
-    CHECK(shared_storage_);
+    DCHECK(shared_storage_);
     return Apply(
         shared_storage_->function_,
         shared_storage_->bound_args_,
@@ -72,10 +74,11 @@ class Callback {
 
  private:
   struct SharedStorage {
-    SharedStorage(const Function& function, BoundArgs&&... bound_args)
+    template<typename InFunction, typename... InBoundArgs>
+    SharedStorage(InFunction&& function, InBoundArgs&&... bound_args)
         : ref_count_(1),
-          function_(function),
-          bound_args_(std::forward<BoundArgs>(bound_args)...) {}
+          function_(std::forward<InFunction>(function)),
+          bound_args_(std::forward<InBoundArgs>(bound_args)...) {}
 
     void Ref() {
       ScopedLock scoped_lock(lock_);
@@ -105,20 +108,21 @@ class Callback {
 // Binds the given arguments to the given callable.
 //
 // The |function| can be a function, method or std::function.
-// TODO: test functors.
 //
 // The arguments are bound in the declaration order of the callable. Not every
 // argument has to be bound; missing arguments can be added at invocation time.
 // For methods, the first argument is the object.
 template<typename Function, typename... BoundArgs>
+inline
 Callback<
     typename std::decay<Function>::type,
     typename std::decay<BoundArgs>::type...>
-Bind(const Function& function, BoundArgs&&... bound_args) {
+Bind(Function&& function, BoundArgs&&... bound_args) {
   typedef Callback<
       typename std::decay<Function>::type,
       typename std::decay<BoundArgs>::type...> CallbackType;
-  return CallbackType(function, std::forward<BoundArgs>(bound_args)...);
+  return CallbackType(std::forward<Function>(function),
+                      std::forward<BoundArgs>(bound_args)...);
 }
 
 #endif  // BASE_BIND_H
