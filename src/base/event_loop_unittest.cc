@@ -60,6 +60,8 @@ class EventLoopTest : public testing::Test {
   }
 
   void TearDown() override {
+    std::function<Time()> empty;
+    SetNowFunction(empty);
     EXPECT_FALSE(EventLoop::Current());
   }
 

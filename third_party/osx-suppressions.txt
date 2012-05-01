@@ -1,0 +1,103 @@
+{
+   ImageLoaderMachO
+   Memcheck:Leak
+   ...
+   fun:_ZN11ImageLoader23recursiveInitializationERKNS_11LinkContextEjRNS_21InitializerTimingListE
+}
+{
+   GoogleLog
+   Memcheck:Leak
+   ...
+   fun:_ZN6google10LogMessageC1EPKcii
+}
+{
+   GoogleLog
+   Memcheck:Leak
+   ...
+   fun:_ZN6google10LogMessageC1EPKci
+}
+{
+   gflags_argv0
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:_ZN6google7SetArgvEiPPKc
+   ...
+}
+{
+   pthread_join
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:new_sem_from_pool
+   fun:pthread_join
+   ...
+}
+{
+   gtest_color_print
+   Memcheck:Leak
+   fun:malloc
+   fun:__smakebuf
+   fun:__swsetup
+   fun:__vfprintf
+   fun:vfprintf_l
+   fun:printf
+   fun:_ZN7testing8internal13ColoredPrintfENS0_10GTestColorEPKcz
+   fun:_ZN7testing8internal27PrettyUnitTestResultPrinter20OnTestIterationStartERKNS_8UnitTestEi
+   fun:_ZN7testing8internal17TestEventRepeater20OnTestIterationStartERKNS_8UnitTestEi
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+}
+{
+   getaddrinfo
+   Memcheck:Leak
+   ...
+   fun:getaddrinfo
+}
+{
+   si_stuff_0
+   Memcheck:Leak
+   ...
+   fun:__si_module_static_search_block_invoke_1
+}
+{
+   si_stuff_1
+   Memcheck:Leak
+   ...
+   fun:si_module_static_search
+}
+{
+   ostream
+   Memcheck:Leak
+   fun:calloc
+   fun:__cxa_get_globals
+   fun:__cxa_uncaught_exception
+   fun:_ZSt18uncaught_exceptionv
+   fun:_ZNSt3__113basic_ostreamIcNS_11char_traitsIcEEE6sentryD2Ev
+   fun:_ZNSt3__1lsINS_11char_traitsIcEEEERNS_13basic_ostreamIcT_EES6_PKc
+}
+{
+   ostream2
+   Memcheck:Leak
+   fun:malloc
+   fun:__smakebuf
+   fun:__swsetup
+   fun:__sfvwrite
+   fun:fwrite
+   ...
+}
+{
+  XOpenDisplay
+  Memcheck:Leak
+  ...
+  fun:XOpenDisplay
+  ...
+}
+{
+  XPending
+  Memcheck:Leak
+  ...
+  fun:XPending
+  ...
+}

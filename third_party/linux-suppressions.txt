@@ -1,0 +1,20 @@
+{  
+   gflags
+   Memcheck:Leak
+   ...
+   fun:_ZN6google21ParseCommandLineFlagsEPiPPPcb
+   ...
+}
+{
+   libc_csu_init
+   Memcheck:Leak
+   ...
+   fun:__libc_csu_init
+}
+{
+  XOpenDisplay
+  Memcheck:Leak
+  ...
+  fun:XOpenDisplay
+  ...
+}
