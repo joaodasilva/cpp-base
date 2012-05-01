@@ -1,5 +1,6 @@
 #include "base/logging.h"
 
+#include "base/lock.h"
 #include "base/stack_trace.h"
 
 #include <cerrno>
@@ -32,7 +33,10 @@ const char* CleanPath(const char* path) {
 // TODO: a more spiffy LogCallback that uses command line flags for filtering.
 void DefaultLogCallback(const LogMessage& message) {
   if (message.severity() < LOG_INFO)
-    return;;
+    return;
+
+  static Lock lock;
+  ScopedLock scoped_lock(lock);
 
   std::cerr << "[" << kSeverity[message.severity()] << " "
             << CleanPath(message.file()) << ":" << message.line() << "] "

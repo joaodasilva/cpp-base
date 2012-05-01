@@ -70,8 +70,11 @@ struct UnpackTuple<0> {
   }
 
   // Special case for methods of WeakPtrs.
+  // WeakPtr<T2> is used instead of WeakPtr<T>, so that methods of superclasses
+  // can be bound to WeakPtrs of derived classes.
   template<
       typename T,
+      typename T2,
       typename... MethodArgs,
       typename... TupleArgs,
       typename... Args>
@@ -79,7 +82,7 @@ struct UnpackTuple<0> {
   unpack(
       void (T::*method)(MethodArgs...),
       const std::tuple<TupleArgs...>& tuple,
-      WeakPtr<T>&& weak_ptr,
+      WeakPtr<T2>&& weak_ptr,
       Args&&... args) {
     if (weak_ptr)
       return ((*weak_ptr).*method)(std::forward<Args>(args)...);
@@ -88,6 +91,7 @@ struct UnpackTuple<0> {
   // Special case for const methods of WeakPtrs.
   template<
       typename T,
+      typename T2,
       typename... MethodArgs,
       typename... TupleArgs,
       typename... Args>
@@ -95,7 +99,7 @@ struct UnpackTuple<0> {
   unpack(
       void (T::*method)(MethodArgs...) const,
       const std::tuple<TupleArgs...>& tuple,
-      WeakPtr<T>&& weak_ptr,
+      WeakPtr<T2>&& weak_ptr,
       Args&&... args) {
     if (weak_ptr)
       return ((*weak_ptr).*method)(std::forward<Args>(args)...);

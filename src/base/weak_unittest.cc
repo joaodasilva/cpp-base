@@ -1,11 +1,7 @@
 #include "base/weak.h"
 
-#include "base/unittest.h"
-
-// TODO: enable tests with the EventLoop.
-#if 0
 #include "base/event_loop.h"
-#endif
+#include "base/unittest.h"
 
 namespace {
 
@@ -112,33 +108,34 @@ TEST(Weak, WeakPtr) {
   EXPECT_FALSE(w0.get());
 }
 
-// TODO: port this.
-#if 0
-void inc(WeakPtr<WeakIncrementer> weak) {
-  if (weak.get())
-    weak->increment();
-  EventLoop::Current()->QuitSoon();
-}
-
-void bounce(WeakPtr<WeakIncrementer> weak, EventLoop* reply_loop) {
-  reply_loop->Post(bind(inc, weak));
-}
-
 TEST(Weak, CopyAcrossThreads) {
+  unique_ptr<EventLoop> main(EventLoop::Create());
+  ASSERT_TRUE(main.get());
+  unique_ptr<EventLoop> other(EventLoop::Create());
+  ASSERT_TRUE(other.get());
+
   int counter = 0;
   unique_ptr<WeakIncrementer> incrementer(new WeakIncrementer(&counter));
-  unique_ptr<EventLoop> main(EventLoop::Create(CreateSteadyClock()));
-  ASSERT_TRUE(main.get());
-  unique_ptr<EventLoop> other(EventLoop::Create(CreateSteadyClock()));
-  ASSERT_TRUE(other.get());
-  other->Post(bind(bounce, incrementer->GetWeakPtr(), main.get()));
-  std::thread other_thread(bind(&EventLoop::Run, other.get()));
-  main->Run();
+  int counter2 = 0;
+  unique_ptr<WeakIncrementer> incrementer2(new WeakIncrementer(&counter2));
+
+  auto inc = Bind(&WeakIncrementer::increment, incrementer->GetWeakPtr());
+  auto inc2 = Bind(&WeakIncrementer::increment, incrementer2->GetWeakPtr());
+  auto invalidate = Bind(&WeakIncrementer::InvalidateAll,
+                         incrementer2->GetWeakPtr());
+
+  other->Post(Bind(&EventLoop::Post, main.get(), inc));
+  other->Post(Bind(&EventLoop::Post, main.get(), invalidate));
+  other->Post(Bind(&EventLoop::Post, main.get(), inc2));
+  other->Post(Bind(&EventLoop::QuitSoon, main.get()));
   other->QuitSoon();
+
+  std::thread other_thread(Bind(&EventLoop::Run, other.get()));
+  main->Run();
   other_thread.join();
   EXPECT_EQ(1, counter);
+  EXPECT_EQ(0, counter2);
 }
-#endif
 
 TEST(Weak, ScopedWeakPtrFactory) {
   int counter = 0;
