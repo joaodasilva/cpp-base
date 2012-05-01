@@ -68,7 +68,8 @@ def build(ctx):
   ctx.stlib(target = 'base',
             use = 'common',
             cxxflags = ctx.env.CXXFLAGS_LOCAL,
-            source = 'src/base/event_loop.cc '
+            source = 'src/base/dns.cc '
+                     'src/base/event_loop.cc '
                      'src/base/file.cc '
                      'src/base/logging.cc '
                      'src/base/socket.cc '
