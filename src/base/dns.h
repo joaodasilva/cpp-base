@@ -34,6 +34,8 @@ class DNS {
   // Waits until all pending resolutions are completed before returning.
   ~DNS();
 
+  EventLoop* loop() { return dns_loop_.get(); }
+
   // Resolves |host| and |service|, and replies by invoking |callback| on the
   // current EventLoop. The argument to |callback| is the resolved addrinfo
   // (see getaddrinfo(3)), or NULL. |host| and |service| can either be a name

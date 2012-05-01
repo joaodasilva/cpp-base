@@ -9,6 +9,8 @@
 #include "base/memory.h"
 #include "base/time.h"
 
+class BaseTest;
+
 class EventLoop {
  public:
   typedef std::function<void()> Callback;
@@ -45,6 +47,8 @@ class EventLoop {
   void QuitSoon();
 
  private:
+  friend class BaseTest;
+
   struct DelayedTask;
   struct PollTask;
   struct Task;
