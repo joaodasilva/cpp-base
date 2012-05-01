@@ -3,7 +3,11 @@
 
 import subprocess
 import sys
+import waflib
 from glob import glob
+
+APPNAME="cpp-base"
+VERSION="0.1"
 
 def options(ctx):
   ctx.load('compiler_cxx')
@@ -41,60 +45,16 @@ def configure(ctx):
   else:
     flags += ['-O2', '-DNDEBUG']
 
-  ctx.env.CXXFLAGS_LOCAL = flags + ['-Wall', '-Wextra', '-Wno-unused-parameter',
-      '-fstrict-aliasing', '-Woverloaded-virtual', '-Werror']
-  ctx.env.CXXFLAGS_3RD_PARTY = flags + ['-w']
+  ctx.env.CXXFLAGS = flags
+  ctx.env.CXXFLAGS_BASE = ['-Wall', '-Wextra', '-Wno-unused-parameter',
+                           '-fstrict-aliasing', '-Woverloaded-virtual',
+                           '-Werror']
+  ctx.env.CXXFLAGS_3RD_PARTY = ['-w']
+  ctx.env.CXXFLAGS_TESTS = ['-DGTEST_USE_OWN_TR1_TUPLE=1', '-DGTEST_HAS_RTTI=0']
 
 def build(ctx):
-  ctx(name = 'common',
-      export_includes = 'src/')
-
-  test_includes = 'third_party/googletest third_party/googletest/include ' \
-                  'third_party/googlemock third_party/googlemock/include '
-  test_flags = ['-DGTEST_USE_OWN_TR1_TUPLE=1', '-DGTEST_HAS_RTTI=0']
-
-  ctx.stlib(target = 'googletest',
-            includes = test_includes,
-            export_includes = 'third_party/googletest/include',
-            cxxflags = ctx.env.CXXFLAGS_3RD_PARTY + test_flags,
-            source = 'third_party/googletest/src/gtest-all.cc')
-
-  ctx.stlib(target = 'googlemock',
-            includes = test_includes,
-            export_includes = 'third_party/googlemock/include',
-            cxxflags = ctx.env.CXXFLAGS_3RD_PARTY + test_flags,
-            source = 'third_party/googlemock/src/gmock-all.cc')
-
-  ctx.stlib(target = 'base',
-            use = 'common',
-            cxxflags = ctx.env.CXXFLAGS_LOCAL,
-            source = 'src/base/dns.cc '
-                     'src/base/event_loop.cc '
-                     'src/base/file.cc '
-                     'src/base/logging.cc '
-                     'src/base/socket.cc '
-                     'src/base/stack_trace.cc '
-                     'src/base/string_utils.cc '
-                     'src/base/time.cc '
-                     'src/base/thread_checker.cc '
-                     'src/base/url.cc ')
-
-  ctx.stlib(target = 'tests_common',
-            use = 'common base googletest googlemock',
-            cxxflags = ctx.env.CXXFLAGS_LOCAL + test_flags,
-            source = 'src/base/unittest.cc ')
-
-  ctx.program(target = 'base_tests',
-              use = 'tests_common',
-              cxxflags = ctx.env.CXXFLAGS_LOCAL + test_flags,
-              source = 'src/base/bind_unittest.cc '
-                       'src/base/event_loop_unittest.cc '
-                       'src/base/logging_unittest.cc '
-                       'src/base/stack_trace_unittest.cc '
-                       'src/base/string_utils_unittest.cc '
-                       'src/base/thread_checker_unittest.cc '
-                       'src/base/url_unittest.cc '
-                       'src/base/weak_unittest.cc ')
+  ctx.recurse('third_party')
+  ctx.recurse('src/base')
 
 def tags(ctx):
   subprocess.call(['ctags', '--extra=+f', '-R', 'src', 'third_party'])

@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# encoding: utf-8 syntax: python
+
+def build(ctx):
+  ctx.stlib(target = 'base',
+            includes = '..',
+            export_includes = '..',
+            use = 'BASE',
+            source = 'dns.cc '
+                     'event_loop.cc '
+                     'file.cc '
+                     'logging.cc '
+                     'socket.cc '
+                     'stack_trace.cc '
+                     'string_utils.cc '
+                     'time.cc '
+                     'thread_checker.cc '
+                     'url.cc ')
+
+  ctx.stlib(target = 'base_tests_common',
+            use = 'base googletest googlemock',
+            source = 'unittest.cc ')
+
+  ctx.program(target = 'base_tests',
+              use = 'base_tests_common TESTS',
+              source = 'bind_unittest.cc '
+                       'event_loop_unittest.cc '
+                       'logging_unittest.cc '
+                       'stack_trace_unittest.cc '
+                       'string_utils_unittest.cc '
+                       'thread_checker_unittest.cc '
+                       'url_unittest.cc '
+                       'weak_unittest.cc ')
