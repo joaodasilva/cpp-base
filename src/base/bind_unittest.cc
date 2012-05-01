@@ -93,7 +93,9 @@ int Tracer::copied_ = 0;
 int Tracer::moved_ = 0;
 int Tracer::deleted_ = 0;
 
-void Nop(const Tracer& tracer_) {}
+void NopConstRef(const Tracer& tracer_) {}
+
+void NopValue(Tracer tracer_) {}
 
 std::string Merge(std::string aa, std::string bb, std::string cc) {
   return "(" + aa + ", " + bb + ", " + cc + ")";
@@ -151,26 +153,50 @@ TEST(ApplyTest, WeakMethod) {
   EXPECT_EQ(std::string(), copy);
 }
 
-TEST(ApplyTest, Copies) {
+TEST(ApplyTest, CopiesConstRef) {
   Tracer::Reset();
-  Apply(Nop, std::make_tuple(), Tracer());
+  Apply(NopConstRef, std::make_tuple(), Tracer());
   Tracer::DumpStats();
 
   Tracer::Reset();
   {
     Tracer tracer;
-    Apply(Nop, std::make_tuple(), tracer);
+    Apply(NopConstRef, std::make_tuple(), tracer);
   }
   Tracer::DumpStats();
 
   Tracer::Reset();
-  Apply(Nop, std::make_tuple(Tracer()));
+  Apply(NopConstRef, std::make_tuple(Tracer()));
   Tracer::DumpStats();
 
   Tracer::Reset();
   {
     Tracer tracer;
-    Apply(Nop, std::make_tuple(tracer));
+    Apply(NopConstRef, std::make_tuple(tracer));
+  }
+  Tracer::DumpStats();
+}
+
+TEST(ApplyTest, CopiesValue) {
+  Tracer::Reset();
+  Apply(NopValue, std::make_tuple(), Tracer());
+  Tracer::DumpStats();
+
+  Tracer::Reset();
+  {
+    Tracer tracer;
+    Apply(NopValue, std::make_tuple(), tracer);
+  }
+  Tracer::DumpStats();
+
+  Tracer::Reset();
+  Apply(NopValue, std::make_tuple(Tracer()));
+  Tracer::DumpStats();
+
+  Tracer::Reset();
+  {
+    Tracer tracer;
+    Apply(NopValue, std::make_tuple(tracer));
   }
   Tracer::DumpStats();
 }
@@ -276,4 +302,38 @@ TEST(BindTest, BindFunction) {
 TEST(BindTest, StdFunction) {
   std::function<std::string(std::string)> f = Bind(Merge, kAA, kBB);
   EXPECT_EQ(kMerged, f(kCC));
+}
+
+TEST(BindTest, CopiesConstRef) {
+  Tracer::Reset();
+  {
+    auto t = Bind(NopConstRef, Tracer());
+    t();
+  }
+  Tracer::DumpStats();
+
+ Tracer::Reset();
+  {
+    Tracer tracer;
+    auto t = Bind(NopConstRef, tracer);
+    t();
+  }
+  Tracer::DumpStats();
+}
+
+TEST(BindTest, CopiesValue) {
+  Tracer::Reset();
+  {
+    auto t = Bind(NopValue, Tracer());
+    t();
+  }
+  Tracer::DumpStats();
+
+ Tracer::Reset();
+  {
+    Tracer tracer;
+    auto t = Bind(NopValue, tracer);
+    t();
+  }
+  Tracer::DumpStats();
 }
