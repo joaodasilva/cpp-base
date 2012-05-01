@@ -49,6 +49,52 @@ class Zombie {
   bool* alive_flag_;
 };
 
+class Tracer {
+ public:
+  Tracer() {
+    created_++;
+  }
+
+  Tracer(const Tracer& tracer) {
+    copied_++;
+  }
+
+  Tracer(Tracer&& tracer) {
+    moved_++;
+  }
+
+  ~Tracer() {
+    deleted_++;
+  }
+
+  static void Reset() {
+    created_ = 0;
+    copied_ = 0;
+    moved_ = 0;
+    deleted_ = 0;
+  }
+
+  static void DumpStats() {
+    LOG(INFO) << "Created: " << created_;
+    LOG(INFO) << "Copied: " << copied_;
+    LOG(INFO) << "Moved: " << moved_;
+    LOG(INFO) << "Deleted: " << deleted_;
+    LOG(INFO) << "";
+  }
+
+  static int created_;
+  static int copied_;
+  static int moved_;
+  static int deleted_;
+};
+
+int Tracer::created_ = 0;
+int Tracer::copied_ = 0;
+int Tracer::moved_ = 0;
+int Tracer::deleted_ = 0;
+
+void Nop(const Tracer& tracer_) {}
+
 std::string Merge(std::string aa, std::string bb, std::string cc) {
   return "(" + aa + ", " + bb + ", " + cc + ")";
 }
@@ -103,6 +149,30 @@ TEST(ApplyTest, WeakMethod) {
   factory.InvalidateAll();
   Apply(&Foo::Copy, std::make_tuple(weak, &copy));
   EXPECT_EQ(std::string(), copy);
+}
+
+TEST(ApplyTest, Copies) {
+  Tracer::Reset();
+  Apply(Nop, std::make_tuple(), Tracer());
+  Tracer::DumpStats();
+
+  Tracer::Reset();
+  {
+    Tracer tracer;
+    Apply(Nop, std::make_tuple(), tracer);
+  }
+  Tracer::DumpStats();
+
+  Tracer::Reset();
+  Apply(Nop, std::make_tuple(Tracer()));
+  Tracer::DumpStats();
+
+  Tracer::Reset();
+  {
+    Tracer tracer;
+    Apply(Nop, std::make_tuple(tracer));
+  }
+  Tracer::DumpStats();
 }
 
 TEST(BindTest, Function) {
