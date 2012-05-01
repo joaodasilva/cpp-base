@@ -1,7 +1,23 @@
+Utilities to write C++ programs:
+
+- WeakPtrs inspired by Chromium's implementation. These allow copying WeakPtrs
+  to an object across threads, and test and use from the creation thread.
+
+- A Bind() implementation similar to std::bind() with special handling for
+  WeakPtrs: the method is not invoked if the WeakPtr has been invalidated.
+  Simpler than std::bind() in that it doesn't support reordering arguments:
+  they must be in the callable's order, and whatever isn't bound must be
+  supplied at the invocation site.
+
+- An EventLoop that executes tasks serially. Tasks are anything that can be
+  assigned to std::function<void()>, including the result of Bind().
+  Tasks can also be posted with a delay, or only when a given file descriptor
+  is read/write ready.
+
 REQUIREMENTS
 
 C++11 compiler. Tested with clang++ 3.0 and gcc 4.6, on OSX and linux.
-Python.
+Python to run the build system (waf).
 
 BUILDING AND TESTING
 
