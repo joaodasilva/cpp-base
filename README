@@ -10,4 +10,4 @@ BUILDING AND TESTING
 2. alias waf=`pwd`/third_party/waf/waf-light
 3. waf configure
 4. waf
-5. ./build/base_tests
+5. ./build/src/base/base_tests

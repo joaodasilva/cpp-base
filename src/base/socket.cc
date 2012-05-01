@@ -8,42 +8,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include "base/dns.h"
 #include "base/logging.h"
 #include "base/socket.h"
-
-// TODO: move to its own file.
-struct DNS {
-  static std::string ToString(const addrinfo& addr) {
-    void* ptr = NULL;
-    uint16 port = 0;
-    std::stringstream ss;
-    if (addr.ai_family == PF_INET) {
-      sockaddr_in *sin = (sockaddr_in *) addr.ai_addr;
-      ptr = &sin->sin_addr;
-      port = ntohs(sin->sin_port);
-    } else if (addr.ai_family == PF_INET6) {
-      sockaddr_in6 *sin6 = (sockaddr_in6 *) addr.ai_addr;
-      ptr = &sin6->sin6_addr;
-      port = ntohs(sin6->sin6_port);
-    } else {
-      ss << "Unknown family: " << addr.ai_family;
-    }
-
-    if (ptr) {
-      static char buffer[INET6_ADDRSTRLEN];
-      ss << inet_ntop(addr.ai_family, ptr, buffer, sizeof(buffer))
-         << ":" << port;
-      if (addr.ai_socktype == SOCK_STREAM)
-        ss << " (TCP)";
-      else if (addr.ai_socktype == SOCK_DGRAM)
-        ss << " (UDP)";
-      else
-        ss << " (type " << addr.ai_socktype << ")";
-    }
-
-    return ss.str();
-  }
-};
 
 // static
 unique_ptr<Socket> Socket::OpenSocket(const addrinfo& addr) {
