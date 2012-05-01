@@ -73,6 +73,7 @@ def build(ctx):
                      'src/base/logging.cc '
                      'src/base/socket.cc '
                      'src/base/stack_trace.cc '
+                     'src/base/string_utils.cc '
                      'src/base/time.cc '
                      'src/base/thread_checker.cc ')
 
@@ -88,6 +89,7 @@ def build(ctx):
                        'src/base/event_loop_unittest.cc '
                        'src/base/logging_unittest.cc '
                        'src/base/stack_trace_unittest.cc '
+                       'src/base/string_utils_unittest.cc '
                        'src/base/thread_checker_unittest.cc '
                        'src/base/weak_unittest.cc ')
 
