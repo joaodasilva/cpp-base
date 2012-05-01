@@ -15,12 +15,12 @@ inline
 typename CallableTraits<Function>::return_type
 Apply(
     const Function& function,
-    const std::tuple<TupleArgs...>& tuple,
-    const Args&... args) {
+    std::tuple<TupleArgs...>&& tuple,
+    Args&&... args) {
   return internal::UnpackTuple<sizeof...(TupleArgs)>::unpack(
       function,
-      tuple,
-      args...);
+      std::forward<std::tuple<TupleArgs...>>(tuple),
+      std::forward<Args>(args)...);
 }
 
 // The type returned by Bind().
@@ -74,7 +74,7 @@ class Callback {
     DCHECK(shared_storage_);
     return Apply(
         shared_storage_->function_,
-        shared_storage_->bound_args_,
+        std::forward<std::tuple<BoundArgs...>>(shared_storage_->bound_args_),
         std::forward<Args>(args)...);
   }
 

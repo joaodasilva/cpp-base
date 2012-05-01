@@ -93,12 +93,18 @@ int Tracer::copied_ = 0;
 int Tracer::moved_ = 0;
 int Tracer::deleted_ = 0;
 
-void NopConstRef(const Tracer& tracer_) {}
+void NopConstRef(const Tracer& tracer) {}
 
-void NopValue(Tracer tracer_) {}
+void NopValue(Tracer tracer) {}
+
+void NopRef(Tracer& tracer) {}
 
 std::string Merge(std::string aa, std::string bb, std::string cc) {
   return "(" + aa + ", " + bb + ", " + cc + ")";
+}
+
+void MergeRef(std::string& to, std::string from) {
+  to += from;
 }
 
 const char kAA[] = "111";
@@ -153,6 +159,18 @@ TEST(ApplyTest, WeakMethod) {
   EXPECT_EQ(std::string(), copy);
 }
 
+TEST(ApplyTest, Ref) {
+  std::string from("from");
+  Apply(MergeRef, std::make_tuple(), from, "to");
+  EXPECT_EQ("fromto", from);
+
+  Apply(MergeRef, std::make_tuple(std::ref(from)), "to");
+  EXPECT_EQ("fromtoto", from);
+
+  Apply(MergeRef, std::make_tuple(std::ref(from), "to"));
+  EXPECT_EQ("fromtototo", from);
+}
+
 TEST(ApplyTest, CopiesConstRef) {
   Tracer::Reset();
   Apply(NopConstRef, std::make_tuple(), Tracer());
@@ -173,6 +191,36 @@ TEST(ApplyTest, CopiesConstRef) {
   {
     Tracer tracer;
     Apply(NopConstRef, std::make_tuple(tracer));
+  }
+  Tracer::DumpStats();
+}
+
+TEST(ApplyTest, CopiesRef) {
+  // This is invalid, because NopRef(Tracer()) can't bind an rvalue to a ref.
+#if 0
+  Tracer::Reset();
+  Apply(NopRef, std::make_tuple(), Tracer());
+  Tracer::DumpStats();
+#endif
+
+  Tracer::Reset();
+  {
+    Tracer tracer;
+    Apply(NopRef, std::make_tuple(), tracer);
+  }
+  Tracer::DumpStats();
+
+  // Same as above.
+#if 0
+  Tracer::Reset();
+  Apply(NopRef, std::make_tuple(Tracer()));
+  Tracer::DumpStats();
+#endif
+
+  Tracer::Reset();
+  {
+    Tracer tracer;
+    Apply(NopRef, std::make_tuple(std::ref(tracer)));
   }
   Tracer::DumpStats();
 }
@@ -316,6 +364,16 @@ TEST(BindTest, CopiesConstRef) {
   {
     Tracer tracer;
     auto t = Bind(NopConstRef, tracer);
+    t();
+  }
+  Tracer::DumpStats();
+}
+
+TEST(BindTest, CopiesRef) {
+ Tracer::Reset();
+  {
+    Tracer tracer;
+    auto t = Bind(NopRef, std::ref(tracer));
     t();
   }
   Tracer::DumpStats();

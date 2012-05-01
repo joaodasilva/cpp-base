@@ -17,13 +17,15 @@ struct UnpackTuple {
   inline static typename CallableTraits<Function>::return_type
   unpack(
       const Function& function,
-      const std::tuple<TupleArgs...>& tuple,
-      const Args&... args) {
+      std::tuple<TupleArgs...>&& tuple,
+      Args&&... args) {
+    typedef std::tuple<TupleArgs...> TupleType;
+    typedef typename std::tuple_element<N-1, TupleType>::type ElementType;
     return UnpackTuple<N-1>::unpack(
         function,
-        tuple,
-        std::get<N-1>(tuple),
-        args...);
+        std::forward<std::tuple<TupleArgs...>>(tuple),
+        std::forward<ElementType>(std::get<N-1>(tuple)),
+        std::forward<Args>(args)...);
   }
 };
 
@@ -45,9 +47,9 @@ struct UnpackTuple<0> {
   unpack(
       Return (T::*method)(MethodArgs...),
       const std::tuple<TupleArgs...>& tuple,
-      Pointer& object,
-      const Args&... args) {
-    return ((*object).*method)(args...);
+      Pointer&& object,
+      Args&&... args) {
+    return ((*object).*method)(std::forward<Args>(args)...);
   }
 
   // Special case for const methods.
@@ -62,9 +64,9 @@ struct UnpackTuple<0> {
   unpack(
       Return (T::*method)(MethodArgs...) const,
       const std::tuple<TupleArgs...>& tuple,
-      Pointer& object,
-      const Args&... args) {
-    return ((*object).*method)(args...);
+      Pointer&& object,
+      Args&&... args) {
+    return ((*object).*method)(std::forward<Args>(args)...);
   }
 
   // Special case for methods of WeakPtrs.
@@ -77,10 +79,10 @@ struct UnpackTuple<0> {
   unpack(
       void (T::*method)(MethodArgs...),
       const std::tuple<TupleArgs...>& tuple,
-      const WeakPtr<T>& weak_ptr,
-      const Args&... args) {
+      WeakPtr<T>&& weak_ptr,
+      Args&&... args) {
     if (weak_ptr)
-      return ((*weak_ptr).*method)(args...);
+      return ((*weak_ptr).*method)(std::forward<Args>(args)...);
   }
 
   // Special case for const methods of WeakPtrs.
@@ -93,10 +95,10 @@ struct UnpackTuple<0> {
   unpack(
       void (T::*method)(MethodArgs...) const,
       const std::tuple<TupleArgs...>& tuple,
-      const WeakPtr<T>& weak_ptr,
-      const Args&... args) {
+      WeakPtr<T>&& weak_ptr,
+      Args&&... args) {
     if (weak_ptr)
-      return ((*weak_ptr).*method)(args...);
+      return ((*weak_ptr).*method)(std::forward<Args>(args)...);
   }
 
   // Generic case.
@@ -105,8 +107,8 @@ struct UnpackTuple<0> {
   unpack(
       const Function& function,
       const std::tuple<TupleArgs...>& tuple,
-      const Args&... args) {
-    return function(args...);
+      Args&&... args) {
+    return function(std::forward<Args>(args)...);
   }
 };
 
