@@ -76,7 +76,8 @@ def build(ctx):
                      'src/base/stack_trace.cc '
                      'src/base/string_utils.cc '
                      'src/base/time.cc '
-                     'src/base/thread_checker.cc ')
+                     'src/base/thread_checker.cc '
+                     'src/base/url.cc ')
 
   ctx.stlib(target = 'tests_common',
             use = 'common base googletest googlemock',
@@ -92,6 +93,7 @@ def build(ctx):
                        'src/base/stack_trace_unittest.cc '
                        'src/base/string_utils_unittest.cc '
                        'src/base/thread_checker_unittest.cc '
+                       'src/base/url_unittest.cc '
                        'src/base/weak_unittest.cc ')
 
 def tags(ctx):
