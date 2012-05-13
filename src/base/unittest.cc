@@ -97,7 +97,7 @@ unique_ptr<Socket> BaseTest::AcceptTestServerConnection() {
   return std::move(connection_socket_);
 }
 
-void BaseTest::OnTestServerAddrResolved(DNS::unique_addrinfo& addr) {
+void BaseTest::OnTestServerAddrResolved(DNS::unique_addrinfo addr) {
   server_addr_.swap(addr);
   QuitSoon();
 }

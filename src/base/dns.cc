@@ -13,7 +13,7 @@ namespace {
 
 void Jump(const DNS::Callback& callback, addrinfo* ptr) {
   DNS::unique_addrinfo unique(ptr);
-  callback(unique);
+  callback(std::move(unique));
 }
 
 }  // namespace

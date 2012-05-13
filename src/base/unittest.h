@@ -54,7 +54,7 @@ class BaseTest : public testing::Test {
   unique_ptr<DNS> dns_;
 
  private:
-  void OnTestServerAddrResolved(DNS::unique_addrinfo& addr);
+  void OnTestServerAddrResolved(DNS::unique_addrinfo addr);
   void OnTestServerReadReady(bool invalid, bool hangup, bool error);
   void OnTimeout();
 

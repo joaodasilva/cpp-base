@@ -25,7 +25,7 @@ class DNS {
   };
 
   typedef unique_ptr<addrinfo, addrinfo_deleter> unique_addrinfo;
-  typedef std::function<void(unique_addrinfo&)> Callback;
+  typedef std::function<void(unique_addrinfo)> Callback;
 
   // Creates a new DNS object and returns it, or NULL if it fails. The DNS
   // object has its own thread where resolutions are performed.
