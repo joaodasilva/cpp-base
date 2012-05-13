@@ -258,3 +258,28 @@ TEST_F(EventLoopTest, Current) {
   other.join();
   EXPECT_EQ(1, counter2);
 }
+
+namespace {
+
+class ScopedFlag {
+ public:
+  explicit ScopedFlag(bool* flag) : flag_(flag) {}
+  ~ScopedFlag() { *flag_ = false; }
+ private:
+  bool* flag_;
+  DISALLOW_COPY_AND_ASSIGN(ScopedFlag);
+};
+
+}  // namespace
+
+TEST_F(EventLoopTest, DeleteSoon) {
+  bool flag = true;
+  ScopedFlag* scoped_flag = new ScopedFlag(&flag);
+  EXPECT_TRUE(flag);
+  loop_->DeleteSoon(scoped_flag);
+  EXPECT_TRUE(flag);
+  loop_->Post(Bind(&EventLoop::QuitSoon, loop_.get()));
+  EXPECT_TRUE(flag);
+  loop_->Run();
+  EXPECT_FALSE(flag);
+}

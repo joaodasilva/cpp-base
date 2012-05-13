@@ -1,6 +1,7 @@
 #ifndef BASE_EVENT_LOOP_H
 #define BASE_EVENT_LOOP_H
 
+#include <functional>
 #include <queue>
 #include <vector>
 
@@ -28,9 +29,11 @@ class EventLoop {
   void PostWhenReadReady(int fd, PollCallback&& f);
   void PostWhenWriteReady(int fd, PollCallback&& f);
 
+  // TODO: Bind() can't bind functors, but std::bind() can. This is because
+  // CallableTraits<> can't take a struct with operator().
   template<typename T>
   void DeleteSoon(T* ptr) {
-    Post(Bind(std::default_delete<T>(), ptr));
+    Post(std::bind(std::default_delete<T>(), ptr));
   }
 
   // Cancels a task that is waiting for |fd|, if any. Such a task can still be
