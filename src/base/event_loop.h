@@ -25,6 +25,7 @@ class EventLoop {
   bool IsCurrent() const { return Current() == this; }
 
   void Post(Callback&& f);
+  void PostAndReply(Callback&& f, Callback&& reply);
   void PostAfter(Callback&& f, const TimeDelta& delay);
   void PostWhenReadReady(int fd, PollCallback&& f);
   void PostWhenWriteReady(int fd, PollCallback&& f);

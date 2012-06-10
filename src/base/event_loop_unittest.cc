@@ -259,6 +259,34 @@ TEST_F(EventLoopTest, Current) {
   EXPECT_EQ(1, counter2);
 }
 
+TEST_F(EventLoopTest, PostAndReply) {
+  unique_ptr<EventLoop> loop2(EventLoop::Create());
+  ASSERT_TRUE(loop2.get());
+
+  int task_counter = 0;
+  int reply_counter = 0;
+
+  auto task = Bind(increment, &task_counter);
+  auto reply = Bind(increment, &reply_counter);
+  auto both = Bind(&EventLoop::PostAndReply, loop2.get(), task, reply);
+
+  loop_->Post(both);
+  loop_->QuitSoon();
+  loop_->Run();
+  EXPECT_EQ(0, task_counter);
+  EXPECT_EQ(0, reply_counter);
+
+  loop2->QuitSoon();
+  loop2->Run();
+  EXPECT_EQ(1, task_counter);
+  EXPECT_EQ(0, reply_counter);
+
+  loop_->QuitSoon();
+  loop_->Run();
+  EXPECT_EQ(1, task_counter);
+  EXPECT_EQ(1, reply_counter);
+}
+
 namespace {
 
 class ScopedFlag {

@@ -36,9 +36,19 @@ bool current_key_is_valid() {
 }  // namespace
 
 struct EventLoop::Task {
-  Task(Callback&& f) : callback(std::forward<Callback>(f)) {}
+  explicit Task(Callback&& f)
+      : callback(std::forward<Callback>(f)) {}
+
+  Task(Callback&& f, Callback&& reply)
+      : callback(std::forward<Callback>(f)),
+        reply_loop(EventLoop::Current()),
+        reply(std::forward<Callback>(reply)) {
+    DCHECK(reply_loop);
+  }
 
   Callback callback;
+  EventLoop* reply_loop;
+  Callback reply;
 };
 
 struct EventLoop::PollTask {
@@ -110,6 +120,18 @@ EventLoop* EventLoop::Current() {
 
 void EventLoop::Post(Callback&& f) {
   Task* task = new Task(std::forward<Callback>(f));
+  bool ping_pipe = false;
+  {
+    ScopedLock lock(pending_lock_);
+    ping_pipe = pending_.empty();
+    pending_.push_back(task);
+  }
+  if (ping_pipe)
+    PingPipe();
+}
+
+void EventLoop::PostAndReply(Callback&& f, Callback&& r) {
+  Task* task = new Task(std::forward<Callback>(f), std::forward<Callback>(r));
   bool ping_pipe = false;
   {
     ScopedLock lock(pending_lock_);
@@ -324,6 +346,8 @@ void EventLoop::PingPipe() {
 
 void EventLoop::HandleAndDelete(Task* task) {
   task->callback();
+  if (task->reply)
+    task->reply_loop->Post(std::move(task->reply));
   delete task;
 }
 
