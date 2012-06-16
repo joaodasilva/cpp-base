@@ -1,5 +1,8 @@
 #include "base/string_utils.h"
 
+#include <cctype>
+#include <cstdlib>
+
 size_t SkipSpaces(const std::string& s, size_t begin) {
   while (begin < s.size() && IsSpace(s[begin]))
     ++begin;
@@ -30,4 +33,13 @@ void SplitString(const std::string& s, char sep, std::vector<std::string>* v) {
       end = begin;
     v->push_back(s.substr(begin, end - begin));
   }
+}
+
+bool StringToUnsigned(const std::string& s, uint32* value) {
+  for (auto c: s) {
+    if (!std::isdigit(c))
+      return false;
+  }
+  *value = std::strtoul(s.c_str(), NULL, 10);
+  return true;
 }

@@ -51,3 +51,18 @@ TEST(StringUtilsTest, SplitString) {
   EXPECT_EQ("3", list[2]);
   EXPECT_EQ("4 5 6", list[3]);
 }
+
+TEST(StringUtilsTest, StringToUnsigned) {
+  uint32 value = 123;
+  EXPECT_TRUE(StringToUnsigned("0", &value));
+  EXPECT_EQ(0u, value);
+  EXPECT_TRUE(StringToUnsigned("1", &value));
+  EXPECT_EQ(1u, value);
+  EXPECT_TRUE(StringToUnsigned("123", &value));
+  EXPECT_EQ(123u, value);
+  EXPECT_FALSE(StringToUnsigned("-1", &value));
+  EXPECT_FALSE(StringToUnsigned("abc", &value));
+  EXPECT_FALSE(StringToUnsigned(" 1", &value));
+  EXPECT_FALSE(StringToUnsigned("-0", &value));
+  EXPECT_FALSE(StringToUnsigned("1.2", &value));
+}
